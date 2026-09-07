@@ -94,8 +94,8 @@ async function saveAndSync() {
 
   statusEl.textContent =
     state.enabled && state.domains.length > 0
-      ? `Активно: ${result.ruleCount} правило, доменов: ${state.domains.length}`
-      : "Правило выключено";
+      ? `Активно, доменов: ${state.domains.length}`
+      : "Защита выключена";
 }
 
 enabledEl.addEventListener("change", async () => {
