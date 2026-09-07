@@ -1,28 +1,33 @@
 # Referer Guard
 
-Small browser extension that removes the HTTP `Referer` header when you follow an external link from a domain you chose.
+Small browser extension that prevents the HTTP `Referer` header from being sent when you follow an external link from a domain you chose.
 
 There are separate builds for Firefox and Chromium-based browsers such as Chrome, Vivaldi, Edge, Brave and others.
 
 ## What it changes
 
-The rule is deliberately narrow. `Referer` is removed only when all of these conditions are true:
+The extension works only on top-level link navigation from domains in your list.
 
-- the navigation starts from a domain in your list;
-- the request loads the main page (`main_frame`);
-- the request method is `GET`;
-- the destination is a different site.
+When a page belongs to a selected source domain, external HTTP/HTTPS links are assigned `referrerpolicy="no-referrer"` before navigation. Links that stay on the same selected site are left unchanged.
 
-XHR, API calls, CSS, JavaScript, images, CDN resources and navigation inside the same site are left alone.
+XHR, API calls, CSS, JavaScript, images, CDN resources and other background requests are not modified.
 
 The domain list is empty after installation. You add only the sites you want.
+
+## Version 1.1.0
+
+Fixed Referer removal for external navigation in Chromium and Firefox.
+
+Previous builds relied on request classification through `declarativeNetRequest`. In some real navigation flows, especially after an internal redirect performed by another extension, the final request could still contain the original `Referer` header.
+
+Version 1.1.0 applies the browser's native `no-referrer` policy directly to external links on selected source pages before navigation. This makes the behavior independent of redirect chains and request classification.
 
 ## Builds
 
 - `firefox/` - Firefox 142+
 - `chromium/` - Chrome, Vivaldi, Edge, Brave and other Chromium browsers
 
-Both builds use Manifest V3 and `declarativeNetRequest`.
+Both builds use Manifest V3.
 
 ## Install for testing
 
@@ -43,13 +48,12 @@ For normal permanent installation, use the signed package from Mozilla Add-ons w
 
 ## Privacy
 
-Referer Guard does not collect or send data. Settings are stored locally in the browser. There are no content scripts, analytics, telemetry, remote code or network requests made by the extension itself.
+Referer Guard does not collect or send data. Settings are stored locally in the browser. There are no analytics, telemetry, remote code or network requests made by the extension itself.
 
 ## Permissions
 
 - `storage` - stores the domain list and enabled state locally;
-- `declarativeNetRequestWithHostAccess` - removes the `Referer` request header;
-- access to HTTP and HTTPS sites - needed because an external link can point to any site.
+- access to HTTP and HTTPS pages through the content script - needed to apply `no-referrer` only on source domains selected by the user.
 
 ## Release packages
 
