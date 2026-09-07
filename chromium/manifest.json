@@ -1,16 +1,11 @@
 {
   "manifest_version": 3,
   "name": "Referer Guard",
-  "version": "1.0.1",
+  "version": "1.1.0",
   "description": "Removes the HTTP Referer header when following external links from domains selected by the user.",
   "minimum_chrome_version": "101",
   "permissions": [
-    "storage",
-    "declarativeNetRequestWithHostAccess"
-  ],
-  "host_permissions": [
-    "http://*/*",
-    "https://*/*"
+    "storage"
   ],
   "background": {
     "service_worker": "service-worker.js"
@@ -30,5 +25,18 @@
     "32": "icons/icon32.png",
     "48": "icons/icon48.png",
     "128": "icons/icon128.png"
-  }
+  },
+  "content_scripts": [
+    {
+      "matches": [
+        "http://*/*",
+        "https://*/*"
+      ],
+      "js": [
+        "content-script.js"
+      ],
+      "run_at": "document_start",
+      "all_frames": false
+    }
+  ]
 }
