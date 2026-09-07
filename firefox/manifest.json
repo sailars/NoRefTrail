@@ -2,7 +2,7 @@
   "manifest_version": 3,
   "name": "Referer Guard",
   "short_name": "Referer Guard",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Удаляет HTTP Referer только при внешних переходах с выбранных пользователем доменов.",
   "permissions": [
     "storage",
