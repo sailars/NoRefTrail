@@ -3,15 +3,13 @@ const DEFAULTS = {
   domains: []
 };
 
-let syncQueue = Promise.resolve();
-
 function sanitizeDomains(domains) {
-  if (!Array.isArray(domains)) return [...DEFAULTS.domains];
+  if (!Array.isArray(domains)) return [];
 
   const result = [];
   for (const value of domains) {
     if (typeof value !== "string") continue;
-    const domain = value.trim().toLowerCase();
+    const domain = value.trim().toLowerCase().replace(/^\*\./, "").replace(/\.$/, "");
     if (!domain || result.includes(domain)) continue;
     result.push(domain);
   }
@@ -25,6 +23,7 @@ async function ensureDefaults() {
   if (typeof stored.enabled !== "boolean") {
     patch.enabled = DEFAULTS.enabled;
   }
+
   if (!Array.isArray(stored.domains)) {
     patch.domains = [...DEFAULTS.domains];
   }
@@ -34,73 +33,50 @@ async function ensureDefaults() {
   }
 }
 
-function createRules(domains) {
-  return domains.map((domain, index) => ({
-    id: index + 1,
-    priority: 1,
-    action: {
-      type: "modifyHeaders",
-      requestHeaders: [
-        {
-          header: "referer",
-          operation: "remove"
-        }
-      ]
-    },
-    condition: {
-      initiatorDomains: [domain],
-      excludedRequestDomains: [domain],
-      resourceTypes: ["main_frame"],
-      requestMethods: ["get"]
-    }
-  }));
-}
-
-async function syncRules() {
+async function syncState() {
   const config = await chrome.storage.local.get(DEFAULTS);
   const enabled = Boolean(config.enabled);
   const domains = sanitizeDomains(config.domains);
-  const existingRules = await chrome.declarativeNetRequest.getDynamicRules();
-
-  await chrome.declarativeNetRequest.updateDynamicRules({
-    removeRuleIds: existingRules.map((rule) => rule.id),
-    addRules: enabled ? createRules(domains) : []
-  });
 
   await chrome.action.setBadgeText({
     text: enabled && domains.length ? String(domains.length) : ""
   });
-}
 
-function queueSync() {
-  syncQueue = syncQueue.then(syncRules, syncRules);
-  return syncQueue;
+  return {
+    enabled,
+    domainCount: domains.length
+  };
 }
 
 chrome.runtime.onInstalled.addListener(() => {
-  ensureDefaults().then(queueSync).catch(console.error);
+  ensureDefaults().then(syncState).catch(console.error);
 });
 
 chrome.runtime.onStartup.addListener(() => {
-  ensureDefaults().then(queueSync).catch(console.error);
+  ensureDefaults().then(syncState).catch(console.error);
 });
 
 chrome.storage.onChanged.addListener((changes, areaName) => {
   if (areaName !== "local") return;
   if (!changes.enabled && !changes.domains) return;
-  queueSync().catch(console.error);
+  syncState().catch(console.error);
 });
 
 chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
   if (message?.type !== "sync") return;
 
-  queueSync()
-    .then(async () => {
-      const rules = await chrome.declarativeNetRequest.getDynamicRules();
-      sendResponse({ ok: true, ruleCount: rules.length });
+  syncState()
+    .then((state) => {
+      sendResponse({
+        ok: true,
+        domainCount: state.domainCount
+      });
     })
     .catch((error) => {
-      sendResponse({ ok: false, error: String(error?.message || error) });
+      sendResponse({
+        ok: false,
+        error: String(error?.message || error)
+      });
     });
 
   return true;
