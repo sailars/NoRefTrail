@@ -1,46 +1,63 @@
 # Referer Guard
 
-Небольшое расширение для Firefox, которое убирает HTTP-заголовок `Referer` при переходе на внешний сайт с выбранного вами домена.
+Small browser extension that removes the HTTP `Referer` header when you follow an external link from a domain you chose.
 
-Список сайтов после установки пустой. Вы сами добавляете домены, для которых хотите отключить передачу `Referer` при переходе по внешним ссылкам.
+There are separate builds for Firefox and Chromium-based browsers such as Chrome, Vivaldi, Edge, Brave and others.
 
-## Как это работает
+## What it changes
 
-Расширение срабатывает только если одновременно выполняются условия:
+The rule is deliberately narrow. `Referer` is removed only when all of these conditions are true:
 
-- переход инициирован с домена из вашего списка;
-- открывается основная страница (`main_frame`);
-- запрос идет методом GET;
-- ссылка ведет на другой домен.
+- the navigation starts from a domain in your list;
+- the request loads the main page (`main_frame`);
+- the request method is `GET`;
+- the destination is a different site.
 
-Поэтому правило не затрагивает XHR, API-запросы, CSS, JavaScript, изображения, CDN-ресурсы и внутренние переходы в пределах того же сайта.
+XHR, API calls, CSS, JavaScript, images, CDN resources and navigation inside the same site are left alone.
 
-Поддомены добавленного домена тоже учитываются.
+The domain list is empty after installation. You add only the sites you want.
 
-## Приватность
+## Builds
 
-Расширение ничего не собирает и никуда ничего не отправляет. Список доменов и состояние переключателя хранятся локально в Firefox.
+- `firefox/` - Firefox 142+
+- `chromium/` - Chrome, Vivaldi, Edge, Brave and other Chromium browsers
 
-В коде нет content scripts, аналитики, телеметрии, удаленного кода и фоновых запросов к сторонним сервисам.
+Both builds use Manifest V3 and `declarativeNetRequest`.
 
-## Разрешения
+## Install for testing
 
-- `storage` - хранение настроек;
-- `declarativeNetRequestWithHostAccess` - удаление заголовка `Referer`;
-- доступ к HTTP/HTTPS-сайтам - нужен, потому что внешняя ссылка может вести на любой сайт.
+### Firefox
 
-## Совместимость
+1. Open `about:debugging#/runtime/this-firefox`.
+2. Click `Load Temporary Add-on`.
+3. Select `firefox/manifest.json`.
 
-Firefox 142 и новее.
+For normal permanent installation, use the signed package from Mozilla Add-ons when available.
 
-## Установка для теста
+### Chromium browsers
 
-1. Откройте `about:debugging#/runtime/this-firefox`.
-2. Нажмите "Загрузить временное дополнение".
-3. Выберите `manifest.json` из репозитория.
+1. Open the extensions page, for example `chrome://extensions` or `vivaldi://extensions`.
+2. Enable Developer mode.
+3. Click `Load unpacked`.
+4. Select the `chromium/` folder.
 
-Сборка не требуется. В репозитории лежит обычный исходный код расширения.
+## Privacy
 
-## Лицензия
+Referer Guard does not collect or send data. Settings are stored locally in the browser. There are no content scripts, analytics, telemetry, remote code or network requests made by the extension itself.
 
-MIT.
+## Permissions
+
+- `storage` - stores the domain list and enabled state locally;
+- `declarativeNetRequestWithHostAccess` - removes the `Referer` request header;
+- access to HTTP and HTTPS sites - needed because an external link can point to any site.
+
+## Release packages
+
+Each release has two builds:
+
+- Firefox
+- Chromium (Chrome, Vivaldi, Edge, Brave and other Chromium browsers)
+
+## License
+
+MIT
