@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "Referer Guard",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Removes the HTTP Referer header when following external links from domains selected by the user.",
   "minimum_chrome_version": "101",
   "permissions": [
