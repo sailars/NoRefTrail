@@ -1,4 +1,3 @@
-const RULE_ID = 1;
 const DEFAULTS = {
   enabled: true,
   domains: []
@@ -35,39 +34,39 @@ async function ensureDefaults() {
   }
 }
 
+function createRules(domains) {
+  return domains.map((domain, index) => ({
+    id: index + 1,
+    priority: 1,
+    action: {
+      type: "modifyHeaders",
+      requestHeaders: [
+        {
+          header: "referer",
+          operation: "remove"
+        }
+      ]
+    },
+    condition: {
+      initiatorDomains: [domain],
+      excludedRequestDomains: [domain],
+      resourceTypes: ["main_frame"],
+      requestMethods: ["get"]
+    }
+  }));
+}
+
 async function syncRules() {
   const config = await chrome.storage.local.get(DEFAULTS);
   const enabled = Boolean(config.enabled);
   const domains = sanitizeDomains(config.domains);
+  const existingRules = await chrome.declarativeNetRequest.getDynamicRules();
 
-  const update = {
-    removeRuleIds: [RULE_ID],
-    addRules: []
-  };
+  await chrome.declarativeNetRequest.updateDynamicRules({
+    removeRuleIds: existingRules.map((rule) => rule.id),
+    addRules: enabled ? createRules(domains) : []
+  });
 
-  if (enabled && domains.length > 0) {
-    update.addRules.push({
-      id: RULE_ID,
-      priority: 1,
-      action: {
-        type: "modifyHeaders",
-        requestHeaders: [
-          {
-            header: "referer",
-            operation: "remove"
-          }
-        ]
-      },
-      condition: {
-        initiatorDomains: domains,
-        resourceTypes: ["main_frame"],
-        requestMethods: ["get"],
-        domainType: "thirdParty"
-      }
-    });
-  }
-
-  await chrome.declarativeNetRequest.updateDynamicRules(update);
   await chrome.action.setBadgeText({
     text: enabled && domains.length ? String(domains.length) : ""
   });
