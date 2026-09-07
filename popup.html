@@ -1,0 +1,59 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Referer Guard</title>
+  <link rel="stylesheet" href="popup.css">
+</head>
+<body>
+  <main>
+    <header class="top">
+      <div>
+        <h1>Referer Guard</h1>
+        <p>Удаляет Referer только у внешней навигации.</p>
+      </div>
+
+      <label class="switch" title="Включить или выключить расширение">
+        <input id="enabled" type="checkbox">
+        <span class="slider"></span>
+      </label>
+    </header>
+
+    <section class="scope">
+      <strong>Область действия</strong>
+      <span>Только GET-загрузка основной страницы с выбранного домена на сторонний домен.</span>
+      <span>XHR, API, CDN, CSS, JS, изображения и внутренние переходы не затрагиваются.</span>
+    </section>
+
+    <section>
+      <h2>Домены-источники</h2>
+
+      <form id="addForm">
+        <input
+          id="domainInput"
+          type="text"
+          inputmode="url"
+          placeholder="example.com"
+          autocomplete="off"
+          spellcheck="false"
+        >
+        <button type="submit">Добавить</button>
+      </form>
+
+      <p class="hint">
+        Можно вставить домен или полный URL. Поддомены выбранного домена тоже учитываются.
+      </p>
+
+      <div id="error" class="error" role="alert"></div>
+      <ul id="domainList"></ul>
+    </section>
+
+    <footer>
+      <span id="status">Проверка...</span>
+    </footer>
+  </main>
+
+  <script src="popup.js"></script>
+</body>
+</html>
