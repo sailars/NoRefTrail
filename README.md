@@ -1,41 +1,46 @@
 # Referer Guard
 
-Referer Guard removes the HTTP `Referer` header when you follow an external link from a domain you selected.
+Небольшое расширение для Firefox, которое убирает HTTP-заголовок `Referer` при переходе на внешний сайт с выбранного вами домена.
 
-You decide which source domains are covered. The extension only affects top-level GET navigation to a third-party domain. It does not touch XHR, API calls, CSS, JavaScript, images, CDN resources, or navigation within the same site.
+Список сайтов после установки пустой. Вы сами добавляете домены, для которых хотите отключить передачу `Referer` при переходе по внешним ссылкам.
 
-## How it works
+## Как это работает
 
-1. Add a source domain in the extension popup.
-2. Follow an external link from that site.
-3. Referer Guard removes the `Referer` header before the request is sent.
+Расширение срабатывает только если одновременно выполняются условия:
 
-The domain list is empty after installation. Subdomains of an added domain are covered as well.
+- переход инициирован с домена из вашего списка;
+- открывается основная страница (`main_frame`);
+- запрос идет методом GET;
+- ссылка ведет на другой домен.
 
-## Privacy
+Поэтому правило не затрагивает XHR, API-запросы, CSS, JavaScript, изображения, CDN-ресурсы и внутренние переходы в пределах того же сайта.
 
-Referer Guard does not collect or transmit data. Settings are stored locally in Firefox. There are no content scripts, analytics, telemetry, remote code, or network calls made by the extension itself.
+Поддомены добавленного домена тоже учитываются.
 
-## Permissions
+## Приватность
 
-- `storage` - stores the domain list and enabled state locally.
-- `declarativeNetRequestWithHostAccess` - removes the `Referer` request header.
-- access to HTTP and HTTPS sites - required because an external link can point to any site.
+Расширение ничего не собирает и никуда ничего не отправляет. Список доменов и состояние переключателя хранятся локально в Firefox.
 
-## Firefox compatibility
+В коде нет content scripts, аналитики, телеметрии, удаленного кода и фоновых запросов к сторонним сервисам.
 
-Firefox 142 or newer.
+## Разрешения
 
-## Development
+- `storage` - хранение настроек;
+- `declarativeNetRequestWithHostAccess` - удаление заголовка `Referer`;
+- доступ к HTTP/HTTPS-сайтам - нужен, потому что внешняя ссылка может вести на любой сайт.
 
-There is no build step. The source in this repository is the extension source.
+## Совместимость
 
-To test it temporarily in Firefox:
+Firefox 142 и новее.
 
-1. Open `about:debugging#/runtime/this-firefox`.
-2. Click "Load Temporary Add-on".
-3. Select `manifest.json` from this repository.
+## Установка для теста
 
-## License
+1. Откройте `about:debugging#/runtime/this-firefox`.
+2. Нажмите "Загрузить временное дополнение".
+3. Выберите `manifest.json` из репозитория.
 
-MIT
+Сборка не требуется. В репозитории лежит обычный исходный код расширения.
+
+## Лицензия
+
+MIT.
