@@ -2,15 +2,10 @@
   "manifest_version": 3,
   "name": "Referer Guard",
   "short_name": "Referer Guard",
-  "version": "1.0.1",
+  "version": "1.1.0",
   "description": "Удаляет HTTP Referer только при внешних переходах с выбранных пользователем доменов.",
   "permissions": [
-    "storage",
-    "declarativeNetRequestWithHostAccess"
-  ],
-  "host_permissions": [
-    "http://*/*",
-    "https://*/*"
+    "storage"
   ],
   "background": {
     "scripts": [
@@ -33,6 +28,19 @@
     "48": "icons/icon48.png",
     "96": "icons/icon96.png"
   },
+  "content_scripts": [
+    {
+      "matches": [
+        "http://*/*",
+        "https://*/*"
+      ],
+      "js": [
+        "content-script.js"
+      ],
+      "run_at": "document_start",
+      "all_frames": false
+    }
+  ],
   "browser_specific_settings": {
     "gecko": {
       "id": "referer-guard-4f6c9d7b2a@local.invalid",
